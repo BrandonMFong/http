@@ -1,2 +1,3 @@
 **0.1**
-- [ ] server html
+- [ ] serve html
+	- [ ] receive http requests from client

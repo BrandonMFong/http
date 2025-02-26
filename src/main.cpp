@@ -24,7 +24,7 @@ void __NewConnection(Connection * sc) {
 }
 
 void __PacketReceive(SocketEnvelope * envelope) {
-	cout << envelope->buf()->data() << endl;
+	cout << "envelope: " << (const char *) envelope->buf()->data() << endl;
 }
 
 int main() {
@@ -34,7 +34,7 @@ int main() {
 	if (!error) {
 		skt->setInStreamCallback(__PacketReceive);
 		skt->setNewConnectionCallback(__NewConnection);
-		skt->setBufferSize(1024);
+		skt->setBufferSize(1024 * 1024 * 100);
 		error = skt->start();
 	}
 	
