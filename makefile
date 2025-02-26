@@ -37,41 +37,41 @@ BIN_PATH = bin/$(CONFIG)
 BUILD_TYPE = executable
 SOURCE_EXT = cpp
 HEADER_EXT = hpp
-FILES = \
+FILES = 
 
 ifeq ($(CONFIG),release) # release
-LIBRARIES += \
-	external/bin/libs/release/bflibc/libbfc.a \
+LIBRARIES = \
+	external/bin/libs/release/bfnet/libbfnet.a \
 	external/bin/libs/release/bflibcpp/libbfcpp.a \
-	external/bin/libs/release/bfnet/libbfnet.a
+	external/bin/libs/release/bflibc/libbfc.a 
 else
-LIBRARIES += \
-	external/bin/libs/debug/bflibc/libbfc-debug.a \
+LIBRARIES = \
+	external/bin/libs/debug/bfnet/libbfnet-debug.a \
 	external/bin/libs/debug/bflibcpp/libbfcpp-debug.a \
-	external/bin/libs/debug/bfnet/libbfnet-debug.a
+	external/bin/libs/debug/bflibc/libbfc-debug.a 
 endif
 
-LINKS = $(BF_LIB_C_FLAGS)
+LINKS = -lpthread $(BF_LIB_C_FLAGS) -ldl
 
 ### Release settings
 ifeq ($(CONFIG),release) # release
 MAIN_FILE = src/main.cpp
 BIN_NAME = http
-FLAGS = $(CPPFLAGS) -Isrc/ $(CPPSTD) -Iexternal/bin/libs/release $(OPENSSL_INCLUDE_PATH)
+FLAGS = $(CPPFLAGS) -Isrc/ $(CPPSTD) -Iexternal/bin/libs/release 
 
 ### Debug settings
 else ifeq ($(CONFIG),debug) # debug
 MAIN_FILE = src/main.cpp
 BIN_NAME = http
 #ADDR_SANITIZER = -fsanitize=address
-FLAGS = $(CPPFLAGS) -DDEBUG -g -Isrc/ $(ADDR_SANITIZER) $(CPPSTD) -Iexternal/bin/libs/debug $(OPENSSL_INCLUDE_PATH)
+FLAGS = $(CPPFLAGS) -DDEBUG -g -Isrc/ $(ADDR_SANITIZER) $(CPPSTD) -Iexternal/bin/libs/debug 
 
 ### Test settings
 else ifeq ($(CONFIG),test) # test
 MAIN_FILE = testbench/tests.cpp
 BIN_NAME = http-test
 #ADDR_SANITIZER = -fsanitize=address
-FLAGS = $(CPPFLAGS) -DDEBUG -DTESTING -g -Isrc/ $(ADDR_SANITIZER) $(CPPSTD) -Iexternal/bin/libs/debug $(OPENSSL_INCLUDE_PATH)
+FLAGS = $(CPPFLAGS) -DDEBUG -DTESTING -g -Isrc/ $(ADDR_SANITIZER) $(CPPSTD) -Iexternal/bin/libs/debug 
 LIBRARIES += external/bin/libs/debug/bftest/libbftest-debug.a
 endif # ($(CONFIG),...)
 
