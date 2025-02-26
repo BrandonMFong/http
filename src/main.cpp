@@ -12,21 +12,35 @@ extern "C" {
 #include <bflibc/bflibc.h>
 }
 
-
 using namespace BF::Net;
 using namespace std;
 
+void __LogCallbackBFNet(const char * buf) { \
+	cout << "bfnet: " << buf << endl;
+}
+
+void __NewConnection(Connection * sc) {
+	cout << "new connection made" << endl;
+}
+
+void __PacketReceive(SocketEnvelope * envelope) {
+	cout << envelope->buf()->data() << endl;
+}
+
 int main() {
 	int error = 0;
-	Socket * skt = Socket::create(SOCKET_MODE_SERVER, "127.0.0.1", 8080, &error);
+	Log::SetCallback(__LogCallbackBFNet);
+	Socket * skt = Socket::create(SOCKET_MODE_SERVER, "0.0.0.0", 8080, &error);
 	if (!error) {
+		skt->setInStreamCallback(__PacketReceive);
+		skt->setNewConnectionCallback(__NewConnection);
+		skt->setBufferSize(1024);
 		error = skt->start();
 	}
 	
-	cout << "Press any key to stop...";
-	cin.get();
-
 	if (!error) {
+		cout << "Press any key to stop...";
+		cin.get();
 		error = skt->stop();
 	}
 
