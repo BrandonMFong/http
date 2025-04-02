@@ -23,8 +23,8 @@ void __NewConnection(Connection * sc) {
 	cout << "new connection made" << endl;
 }
 
-void __PacketReceive(SocketEnvelope * envelope) {
-	cout << "envelope: " << (const char *) envelope->buf()->data() << endl;
+void __PacketReceive(Envelope * envelope) {
+	cout << "envelope: " << (const char *) envelope->data()->buffer() << endl;
 }
 
 int main() {
