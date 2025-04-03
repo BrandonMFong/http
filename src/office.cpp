@@ -4,6 +4,8 @@
  */
 
 #include "office.hpp"
+#include "request.hpp"
+#include "response.hpp"
 #include <cstdio>
 #include <bflibcpp/bflibcpp.hpp>
 #include <bfnet/bfnet.hpp>
@@ -33,6 +35,10 @@ void Office::envelopeReceive(Envelope * envelope) {
 	BFLockRelease(&_queueSema);
 }
 
+void __IncomingRequestHandle(Request * request) {
+
+}
+
 void __IncomingRequestsWorkerThread(void * in) {
 	while (!BFThreadAsyncIsCanceled(_tidRequestQueue)) {
 		if (_incomingRequests.get().empty()) { 
@@ -47,14 +53,17 @@ void __IncomingRequestsWorkerThread(void * in) {
 			_incomingRequests.unsafeget().pop();
 	
 			cout << "envelope: " << (const char *) envelope->data()->buffer() << endl;
+			Request * req = new Request(envelope->data());
 
-			// release memory
+			Response * resp = Response::fromRequest(req);
+
+			BFRelease(resp);
+			BFRelease(req);
 			BFRelease(envelope);
 
 			_incomingRequests.unlock();
 		}
 	}
-
 }
 
 void Office::start() {
