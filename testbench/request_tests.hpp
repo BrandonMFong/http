@@ -24,8 +24,17 @@ BFTEST_UNIT_FUNC(test_requestInit, 1, {
 	BFRelease(req);
 })
 
+BFTEST_UNIT_FUNC(test_simpleClientRequest, 1, {
+	String str = "Hello world";
+	Data d(str);
+	Request * req = new Request(&d);
+	BFRelease(req);
+})
+
 BFTEST_COVERAGE_FUNC(request_tests, {
 	BFTEST_LAUNCH(test_requestInit);
+	BFTEST_LAUNCH(test_simpleClientRequest);
+
 })
 
 #endif // REQUEST_TESTS_HPP
