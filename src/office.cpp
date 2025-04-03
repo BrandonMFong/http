@@ -56,6 +56,8 @@ void __IncomingRequestsWorkerThread(void * in) {
 			Request * req = new Request(envelope->data());
 
 			Response * resp = Response::fromRequest(req);
+			if (resp) {
+			}
 
 			BFRelease(resp);
 			BFRelease(req);
