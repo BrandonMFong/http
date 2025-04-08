@@ -21,7 +21,7 @@ public:
 	Request(const BF::Data * data);
 	virtual ~Request();
 
-	RequestMethod method() const;
+	BF::String method() const;
 	BF::String target() const;
 	BF::String protocol() const;
 
