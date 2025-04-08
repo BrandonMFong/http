@@ -24,10 +24,26 @@ BFTEST_UNIT_FUNC(test_requestInit, 1, {
 	BFRelease(req);
 })
 
-BFTEST_UNIT_FUNC(test_simpleClientRequest, 1, {
-	String str = "Hello world";
-	Data d(str);
-	Request * req = new Request(&d);
+BFTEST_UNIT_FUNC(test_simpleClientRequest, 2 << 10, {
+	String get_str = "GET /index.html HTTP/1.1\r\nHost: example.com\r\n\r\n";
+	Data get_buf(get_str);
+	String post_str = "POST /submit.php HTTP/1.1\r\nHost: another.com\r\nContent-Length: 10\r\n\r\ndata=value";
+	Data post_buf(post_str);
+	String invalid_str = "Invalid Request Line";
+	Data invalid_buf(invalid_str);
+
+	Request * req = NULL;
+	
+	req = new Request(&get_buf);
+	BF_ASSERT(req->method() == kRequestMethodGet);
+	BFRelease(req);
+
+	req = new Request(&post_buf);
+	BF_ASSERT(req->method() == kRequestMethodPost);
+	BFRelease(req);
+
+	req = new Request(&invalid_buf);
+	BF_ASSERT(req->method() == kRequestMethodNone);
 	BFRelease(req);
 })
 

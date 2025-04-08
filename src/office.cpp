@@ -57,6 +57,7 @@ void __IncomingRequestsWorkerThread(void * in) {
 
 			Response * resp = Response::fromRequest(req);
 			if (resp) {
+				envelope->connection()->queueData(resp->data());
 			}
 
 			BFRelease(resp);
