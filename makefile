@@ -37,7 +37,7 @@ BIN_PATH = bin/$(CONFIG)
 BUILD_TYPE = executable
 SOURCE_EXT = cpp
 HEADER_EXT = hpp
-FILES = office request response
+FILES = office request response resource log
 
 ifeq ($(CONFIG),release) # release
 LIBRARIES = \

@@ -1,0 +1,72 @@
+/**
+ * author: brando
+ * date: 4/9/25
+ */
+
+#ifndef LOG_HPP
+#define LOG_HPP
+
+extern "C" {
+#include <bflibc/filewriter.h>
+}
+
+#define CHAT_LOG_PATH "/tmp/http.log"
+
+extern BFFileWriter gFileWriter;
+
+/**
+ * must define in a source file
+ */
+#define LOG_INIT \
+BFFileWriter gFileWriter = 0; \
+void __LogCallbackBFNet(const char * buf) { \
+	LOG_DEBUG("bfnet: %s", buf); \
+	LOG_FLUSH; \
+}
+
+/**
+ * initializes logs for:
+ *	- http
+ *	- bfnet
+ */
+#define LOG_OPEN \
+BFFileWriterCreate(&gFileWriter, CHAT_LOG_PATH); \
+BF::Net::Log::SetCallback(__LogCallbackBFNet);
+
+/**
+ * `mode`: 'd' for debug, 'e' for error, or 0 for normal
+ */
+void _LogWriteEntry(BFFileWriter * filewriter, int mode, ...);
+
+/**
+ * LOG_WRITE vs LOG_DEBUG vs LOG_ERROR
+ *
+ * - each writes a line into the same log file
+ * - each log entry will explicitly tell you what type of log entry it is
+ */
+
+/**
+ * writes ent (line) to log file
+ */
+#define LOG_WRITE(...) _LogWriteEntry(&gFileWriter, 0, __VA_ARGS__)
+
+#define LOG_ERROR(...) _LogWriteEntry(&gFileWriter, 'e', __VA_ARGS__)
+
+#ifdef DEBUG
+#define LOG_DEBUG(...) _LogWriteEntry(&gFileWriter, 'd', __VA_ARGS__)
+#else // DEBUG
+#define LOG_DEBUG(...)
+#endif // DEBUG
+
+/**
+ * flushes write buffers
+ */
+#define LOG_FLUSH BFFileWriterFlush(&gFileWriter)
+
+/**
+ * closes log file
+ */
+#define LOG_CLOSE BFFileWriterClose(&gFileWriter)
+
+#endif // LOG_HPP
+

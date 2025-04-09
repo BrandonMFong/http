@@ -19,7 +19,7 @@ private:
 	Response();
 
 private:
-	BF::Data _message;
+	BF::Data * _body;
 };
 
 #endif // RESPONSE_HPP

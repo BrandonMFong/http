@@ -4,6 +4,8 @@
  */
 
 #include "office.hpp"
+#include "log.hpp"
+#include "resource.hpp"
 #include <cstdio>
 #include <bflibcpp/bflibcpp.hpp>
 #include <bfnet/bfnet.hpp>
@@ -13,19 +15,58 @@ extern "C" {
 #include <bflibc/bflibc.h>
 }
 
+#define ARGUMENT_ROOT "-root"
+
 using namespace BF::Net;
 using namespace BF;
 using namespace std;
 
-void __LogCallbackBFNet(const char * buf) { \
-	cout << "bfnet: " << buf << endl;
+LOG_INIT;
+
+void help(const char * toolname) {
+	printf("usage: %s %s <path>\n", toolname, ARGUMENT_ROOT);
+	printf("\n");
+	printf("Arguments:\n");
+	printf("  %s <path>\tThis is the root folder where we will look for resources\n", ARGUMENT_ROOT);
+	printf("\nCopyright © 2025 Brando. All rights reserved.\n");
 }
 
 void __NewConnection(Connection * sc) {
 	cout << "new connection made" << endl;
 }
 
-int main() {
+void __PrintError(const char * format, ...) {
+	va_list args;
+	va_start(args, format);
+	printf("error: ");
+	vprintf(format, args);
+	va_end(args);
+}
+
+int __ReadArguments(int argc, char * argv[]) {
+	if (argc == 1) {
+		help(argv[0]);
+		return -1;
+	}
+
+	for (int i = 0; i < argc; i++) {
+		if (!strcmp(argv[i], ARGUMENT_ROOT)) {
+			if (!Resource::setRootFolder(argv[++i])) {
+				__PrintError("'%s' is not accepted as a root folder\n", argv[i]);
+			}
+		}
+	}
+
+	return 0;
+}
+
+int main(int argc, char * argv[]) {
+	LOG_OPEN;
+
+	if (__ReadArguments(argc, argv)) {
+		return -1;
+	}
+
 	int error = 0;
 	Log::SetCallback(__LogCallbackBFNet);
 
@@ -46,6 +87,8 @@ int main() {
 
 	BFRelease(skt);
 	Office::stop();
+
+	LOG_CLOSE;
 
 	return error;
 }

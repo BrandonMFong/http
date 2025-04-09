@@ -35,10 +35,6 @@ void Office::envelopeReceive(Envelope * envelope) {
 	BFLockRelease(&_queueSema);
 }
 
-void __IncomingRequestHandle(Request * request) {
-
-}
-
 void __IncomingRequestsWorkerThread(void * in) {
 	while (!BFThreadAsyncIsCanceled(_tidRequestQueue)) {
 		if (_incomingRequests.get().empty()) { 
@@ -57,7 +53,7 @@ void __IncomingRequestsWorkerThread(void * in) {
 
 			Response * resp = Response::fromRequest(req);
 			if (resp) {
-				envelope->connection()->queueData(resp->data());
+				//envelope->connection()->queueData(resp->data());
 			}
 
 			BFRelease(resp);
