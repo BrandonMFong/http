@@ -6,18 +6,40 @@
 #include "resource.hpp"
 #include <bflibcpp/bflibcpp.hpp>
 
+extern "C" {
+#include <bflibc/bflibc.h>
+}
+
+#ifdef LINUX
+#include <linux/limits.h>
+#endif
+#include <limits.h>
+
 using namespace BF;
 
 String _rootFolder;
 
-bool Resource::setRootFolder(const BF::String & rootFolder) {
+const BF::String & Resource::getRootFolder() {
+	return _rootFolder;
+}
+
+bool Resource::setRootFolder(const String & rootFolder) {
+	URL url(rootFolder);
+	if (!BFFileSystemPathExists(url.abspath())) {
+		return false;
+	}
 	_rootFolder = rootFolder;
 	return true;
 }
 
 Data * Resource::copyContentForTarget(const String & target) {
-	Data * res = NULL;
+	URL url(_rootFolder);
+	url.append(target);
 
-	return res;
+	if (!BFFileSystemPathExists(url.abspath())) {
+		return NULL;
+	}
+
+	return Data::fromFile(url);
 }
 

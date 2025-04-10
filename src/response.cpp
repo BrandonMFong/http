@@ -7,10 +7,13 @@
 #include "resource.hpp"
 #include <bflibcpp/bflibcpp.hpp>
 
+extern "C" {
+#include <bflibc/bflibc.h>
+}
+
 using namespace BF;
 
-Response::Response() {
-}
+Response::Response() { }
 
 Response::~Response() {
 	BFRelease(this->_body);
@@ -19,17 +22,28 @@ Response::~Response() {
 Response * Response::fromRequest(const Request * request) {
 	if (!request) return NULL;
 
-	String s = "HTTP/1.1 200 OK\n Content-Type: text/html\n <html><body>Hello World</body></html>";
-
 	Response * res = new Response;
 	if (!res) return NULL;
+	res->_statusCode = 200;
 
 	if (request->method() == "GET") {
-		String target = request->target();
-		res->_body = Resource::copyContentForTarget(target);
+		Response::handleRequestGET(request, res);
 	}
 
 	return res;
+}
+
+void Response::handleRequestGET(const Request * request, Response * response) {
+	if (!request || !response) return;
+	
+	String target = request->target();
+	URL url(Resource::getRootFolder());
+	url.append(target);
+	if (BFFileSystemPathIsFile(url.abspath())) {
+		response->_body = Resource::copyContentForTarget(request->target());
+	} else {
+		response->_statusCode = 404;
+	}
 }
 
 const Data * Response::data() const {
