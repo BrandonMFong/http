@@ -8,6 +8,7 @@
 
 #include <bflibcpp/object.hpp>
 #include <bflibcpp/data.hpp>
+#include <bflibcpp/string.hpp>
 #include "request.hpp"
 
 class Response : public BF::Object {
@@ -26,8 +27,10 @@ private:
 	
 	static void handleRequestGET(const Request * request, Response * response);
 	void writeStatusLine(BF::String & content) const;
+	void writeHeader(BF::String & content) const;
 
-	BF::Data * _body;
+	BF::Data * _content;
+	BF::String _contentType;
 	int _statusCode = 0;
 };
 
