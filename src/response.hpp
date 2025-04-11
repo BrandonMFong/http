@@ -17,12 +17,15 @@ public:
 
 	/**
 	 * the http response in raw text we will send back
+	 *
+	 * caller owns data
 	 */
-	const BF::Data * data() const;
+	const BF::Data * createData() const;
 private:
 	Response();
 	
 	static void handleRequestGET(const Request * request, Response * response);
+	void writeStatusLine(BF::String & content) const;
 
 	BF::Data * _body;
 	int _statusCode = 0;

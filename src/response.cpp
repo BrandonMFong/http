@@ -46,7 +46,15 @@ void Response::handleRequestGET(const Request * request, Response * response) {
 	}
 }
 
-const Data * Response::data() const {
+const Data * Response::createData() const {
+	String content;
+	this->writeStatusLine(content);
+	if (this->_statusCode == 404) {
+	}
 	return NULL;
+}
+
+void Response::writeStatusLine(String & content) const {
+
 }
 
