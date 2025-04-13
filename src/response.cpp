@@ -5,6 +5,7 @@
 
 #include "response.hpp"
 #include "resource.hpp"
+#include "log.hpp"
 #include <bflibcpp/bflibcpp.hpp>
 
 extern "C" {
@@ -22,29 +23,44 @@ Response::~Response() {
 }
 
 Response * Response::fromRequest(const Request * request) {
+	LOG_DEBUG("%s:%d", __func__, __LINE__);
 	if (!request) return NULL;
 
+	LOG_DEBUG("%s:%d", __func__, __LINE__);
 	Response * res = new Response;
 	if (!res) return NULL;
 	res->_statusCode = 200;
 
 	if (request->method() == "GET") {
+		LOG_DEBUG("%s:%d", __func__, __LINE__);
 		Response::handleRequestGET(request, res);
 	}
 
+	LOG_DEBUG("%s:%d", __func__, __LINE__);
 	return res;
 }
 
 void Response::handleRequestGET(const Request * request, Response * response) {
+	LOG_DEBUG("%s:%d", __func__, __LINE__);
 	if (!request || !response) return;
 	
+	LOG_DEBUG("%s:%d", __func__, __LINE__);
 	String target = request->target();
 	URL url(Resource::getRootFolder());
 	url.append(target);
+	
+	LOG_DEBUG("%s:%d", __func__, __LINE__);
+	if (BFFileSystemPathIsDirectory(url.abspath())) {
+		url.append("index.html");
+	}
+
+	LOG_DEBUG("%s:%d", __func__, __LINE__);
 	if (BFFileSystemPathIsFile(url.abspath())) {
+		LOG_DEBUG("%s:%d", __func__, __LINE__);
 		response->_content = Resource::copyContentForTarget(request->target());
 		response->_contentType = "text/html; charset=utf-8";
 	} else {
+		LOG_DEBUG("%s:%d", __func__, __LINE__);
 		response->_statusCode = 404;
 		response->_content = new Data("<!DOCTYPE html><html><head><title>404 Not Found</title></head><body><h1>404 Not Found</h1><p>Sorry, the page you are looking for does not exist.</p></body></html>");
 		response->_contentType = "text/html; charset=utf-8";
@@ -56,7 +72,13 @@ const Data * Response::createData() const {
 	this->writeStatusLine(content);
 	this->writeHeader(content);
 
-	return NULL;
+	content.push_back('\n');
+
+	if (this->_content) {
+		content.append(*this->_content);
+	}
+
+	return new Data(content);
 }
 
 void Response::writeStatusLine(String & content) const {

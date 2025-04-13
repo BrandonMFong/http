@@ -44,6 +44,18 @@ void _LogWriteEntry(BFFileWriter * filewriter, int mode, ...) {
 		logstr
 	);
 
+	printf(
+		format,
+		dt.month,
+		dt.day,
+		dt.year,
+		dt.hour,
+		dt.minute,
+		dt.second,
+		logstr
+	);
+	printf("\n");
+
 	va_end(arg0);
 	va_end(arg1);
 

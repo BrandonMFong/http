@@ -32,15 +32,7 @@ void help(const char * toolname) {
 }
 
 void __NewConnection(Connection * sc) {
-	cout << "new connection made" << endl;
-}
-
-void __PrintError(const char * format, ...) {
-	va_list args;
-	va_start(args, format);
-	printf("error: ");
-	vprintf(format, args);
-	va_end(args);
+	LOG_WRITE("new connection made");
 }
 
 int __ReadArguments(int argc, char * argv[]) {
@@ -52,7 +44,7 @@ int __ReadArguments(int argc, char * argv[]) {
 	for (int i = 0; i < argc; i++) {
 		if (!strcmp(argv[i], ARGUMENT_ROOT)) {
 			if (!Resource::setRootFolder(argv[++i])) {
-				__PrintError("'%s' is not accepted as a root folder\n", argv[i]);
+				LOG_ERROR("'%s' is not accepted as a root folder", argv[i]);
 			}
 		}
 	}
