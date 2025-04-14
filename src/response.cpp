@@ -62,8 +62,8 @@ void Response::handleRequestGET(const Request * request, Response * response) {
 	} else {
 		LOG_DEBUG("%s:%d", __func__, __LINE__);
 		response->_statusCode = 404;
-		response->_content = new Data("<!DOCTYPE html><html><head><title>404 Not Found</title></head><body><h1>404 Not Found</h1><p>Sorry, the page you are looking for does not exist.</p></body></html>");
-		response->_contentType = "text/html; charset=utf-8";
+		response->_content = new Data("404 Not Found");
+		response->_contentType = "text/plain";
 	}
 }
 
@@ -72,7 +72,7 @@ const Data * Response::createData() const {
 	this->writeStatusLine(content);
 	this->writeHeader(content);
 
-	content.push_back('\n');
+	content.append("\r\n");
 
 	if (this->_content) {
 		content.append(*this->_content);
@@ -83,9 +83,9 @@ const Data * Response::createData() const {
 
 void Response::writeStatusLine(String & content) const {
 	if (this->_statusCode == 404) {
-		content.append("HTTP/1.1 %d Not Found\n", this->_statusCode);
+		content.append("HTTP/1.1 %d Not Found\r\n", this->_statusCode);
 	} else {
-		content.append("HTTP/1.1 %d Ok\n", this->_statusCode);
+		content.append("HTTP/1.1 %d Ok\r\n", this->_statusCode);
 	}
 }
 
@@ -110,14 +110,14 @@ void __ResponseGenerateDateString(char * buf) {
 }
 
 void Response::writeHeader(String & content) const {
-	content.append("Server: brando's http server\n");
+	content.append("Server: brando's http server\r\n");
 
 	char buf[HTTP_DATE_BUFSIZE];
 	__ResponseGenerateDateString(buf);
-	content.append("Date: %s", buf);
+	content.append("Date: %s\r\n", buf);
 
-	content.append("Content-Length: %d\n", this->_content ? this->_content->size() : 0);
+	content.append("Content-Length: %d\r\n", this->_content ? this->_content->size() : 0);
 
-	content.append("Content-Type: %s\n", this->_contentType.c_str());
+	content.append("Content-Type: %s\r\n", this->_contentType.c_str());
 }
 
