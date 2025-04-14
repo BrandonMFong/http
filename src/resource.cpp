@@ -4,6 +4,7 @@
  */
 
 #include "resource.hpp"
+#include "log.hpp"
 #include <bflibcpp/bflibcpp.hpp>
 
 extern "C" {
@@ -32,11 +33,14 @@ bool Resource::setRootFolder(const String & rootFolder) {
 	return true;
 }
 
-Data * Resource::copyContentForTarget(const String & target) {
+Data * Resource::copyContentForFile(const String & file) {
 	URL url(_rootFolder);
-	url.append(target);
+
+	LOG_DEBUG("%s:%d - url-> '%s'", __func__, __LINE__, url.abspath());
+
 
 	if (!BFFileSystemPathExists(url.abspath())) {
+		LOG_DEBUG("%s:%d - url above does not exist", __func__, __LINE__);
 		return NULL;
 	}
 

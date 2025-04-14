@@ -57,8 +57,9 @@ void Response::handleRequestGET(const Request * request, Response * response) {
 	LOG_DEBUG("%s:%d", __func__, __LINE__);
 	if (BFFileSystemPathIsFile(url.abspath())) {
 		LOG_DEBUG("%s:%d", __func__, __LINE__);
-		response->_content = Resource::copyContentForTarget(request->target());
-		response->_contentType = "text/html; charset=utf-8";
+		//response->_content = Resource::copyContentForFile(request->target());
+		response->_content = Data::fromFile(url);
+		response->_contentType = "text/html";
 	} else {
 		LOG_DEBUG("%s:%d", __func__, __LINE__);
 		response->_statusCode = 404;
@@ -74,7 +75,9 @@ const Data * Response::createData() const {
 
 	content.append("\r\n");
 
-	if (this->_content) {
+	if (!this->_content) {
+		LOG_DEBUG("%s:%d - null content", __func__, __LINE__);
+	} else {
 		content.append(*this->_content);
 	}
 
