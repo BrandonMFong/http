@@ -55,6 +55,7 @@ void _LogWriteEntry(BFFileWriter * filewriter, int mode, ...) {
 		logstr
 	);
 	printf("\n");
+	fflush(stdout);
 
 	va_end(arg0);
 	va_end(arg1);

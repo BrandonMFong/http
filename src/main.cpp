@@ -75,6 +75,8 @@ int main(int argc, char * argv[]) {
 		cout << "Press any key to stop...";
 		cin.get();
 		error = skt->stop();
+
+		cout << "Stopped..." << endl;
 	}
 
 	BFRelease(skt);

@@ -51,7 +51,11 @@ void __IncomingRequestsWorkerThread(void * in) {
 			
 			_incomingRequests.unlock();
 	
-			LOG_WRITE("envelope: %s", (const char *) envelope->data()->buffer());
+			if (envelope->data()->size() == 0) {
+				continue;
+			}
+
+			LOG_WRITE("envelope.len(%ld):\n%s", envelope->data()->size(), (const char *) envelope->data()->buffer());
 			Request * req = new Request(envelope->data());
 
 			Response * resp = Response::fromRequest(req);
