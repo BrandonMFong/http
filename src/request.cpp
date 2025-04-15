@@ -4,6 +4,7 @@
  */
 
 #include "request.hpp"
+#include "log.hpp"
 #include <bflibcpp/bflibcpp.hpp>
 
 #include <regex>
@@ -11,6 +12,8 @@
 using namespace BF;
 
 Request::Request(const Data * data) : _message(data == NULL ? 0 : (const char *) data->buffer(), data == NULL ? 0 : data->size()) {
+	LOG_WRITE("Request length = %ld", _message.size());
+	LOG_WRITE("Request content = \n%s", _message.c_str());
 }
 
 Request::~Request() {

@@ -55,7 +55,9 @@ void __IncomingRequestsWorkerThread(void * in) {
 				continue;
 			}
 
-			LOG_WRITE("envelope.len(%ld):\n%s", envelope->data()->size(), (const char *) envelope->data()->buffer());
+			//LOG_WRITE("envelope.len = %ld", envelope->data()->size());
+			//LOG_WRITE("envelope:\n%s", (const char *) envelope->data()->buffer());
+			//cout << "envelope:\n" << (const char *) envelope->data()->buffer() << endl;
 			Request * req = new Request(envelope->data());
 
 			Response * resp = Response::fromRequest(req);
