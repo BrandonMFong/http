@@ -52,7 +52,7 @@ String __RequestTargetParse(String & target, int component) {
 	char * target_copy = NULL;
 
 	if (!error) {
-		target_copy = BFStringCopyString(target.c_str());
+		target_copy = target.cStringCopy();
 		if (!target_copy) {
 			res = target;
 			error = 1;
@@ -61,12 +61,16 @@ String __RequestTargetParse(String & target, int component) {
 
 	const char * del = "?";
 	char * sub = NULL;
-	while (!error && component-- >= 0) {
-		sub = strtok(target_copy, del);
+	int i = 0;
+	while (!error && component >= 0) {
+		sub = strtok(i == 0 ? target_copy : NULL, del);
 		if (!sub) {
 			res = target;
 			error = 1;
 		}
+
+		component--;
+		i++;
 	}
 
 	if (!error) {
@@ -80,32 +84,39 @@ String __RequestTargetParse(String & target, int component) {
 }
 
 String Request::targetPath() const {
-	/*
-	String target = this->target();
-	char * target_copy = BFStringCopyString(target.c_str());
-	if (!target_copy) {
-		return target;
-	}
-
-	const char * del = "?";
-	char * sub = strtok(target_copy, del);
-	if (!sub) {
-		return target;
-	}
-
-	String res = sub;
-	BFFree(target_copy);
-
-	return res;
-	*/
 	String target = this->target();
 	return __RequestTargetParse(target, 0);
+}
+
+int __RequestQueryPairParse(HashMap<String, String> & map, const char * pair) {
+	if (!pair) return 1;
+
+	char * pair_copy = BFStringCopyString(pair);
+	const char * del = "=";
+	String key = strtok(pair_copy, del);
+	String value = strtok(NULL, del);
+
+	map.insert(key, value);
+
+	BFFree(pair_copy);
+
+	return 0;
 }
 
 HashMap<String, String> Request::targetQuery() const {
 	HashMap<String, String> res;
 	String target = this->target();
 	String queryString = __RequestTargetParse(target, 1);
+	char * query_copy = queryString.cStringCopy();
+	
+	const char * del = "&";
+	char * sub = NULL;
+	int i = 0;
+	while ((sub = strtok(i++ == 0 ? query_copy : NULL, del)) != NULL) {
+		__RequestQueryPairParse(res, sub);
+	}
+
+	BFFree(query_copy);
 
 	return res;
 }

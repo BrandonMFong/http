@@ -75,6 +75,9 @@ BFTEST_UNIT_FUNC(test_requestTargetPathAndQuery, 1, {
 
 	Request req(&buf);
 	BF_ASSERT(req.targetPath() == "/assets/fonts/fontawesome-webfont.ttf");
+
+	HashMap<String, String> query = req.targetQuery();
+	BF_ASSERT(query["v"] == "4.6.3");
 })
 
 BFTEST_COVERAGE_FUNC(request_tests, {
