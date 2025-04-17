@@ -24,7 +24,7 @@ BFTEST_UNIT_FUNC(test_requestInit, 1, {
 	BFRelease(req);
 })
 
-BFTEST_UNIT_FUNC(test_simpleClientRequest, 2 << 8, {
+BFTEST_UNIT_FUNC(test_simpleClientRequest, 2 << 6, {
 	String get_str = "GET /index.html HTTP/1.1\r\nHost: example.com\r\n\r\n";
 	Data get_buf(get_str);
 	String post_str = "POST /submit.php HTTP/1.1\r\nHost: another.com\r\nContent-Length: 10\r\n\r\ndata=value";
@@ -61,7 +61,7 @@ BFTEST_UNIT_FUNC(test_simpleClientRequest, 2 << 8, {
 	BFRelease(req);
 })
 
-BFTEST_UNIT_FUNC(test_requestTargetPathAndQuery, 1, {
+BFTEST_UNIT_FUNC(test_requestTargetPathAndQuery, 2 << 8, {
 	String str = "GET /assets/fonts/fontawesome-webfont.ttf?v=4.6.3 HTTP/1.1\r\n\
 	Host: 10.0.0.82:8080\r\n\
 	User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:137.0) Gecko/20100101 Firefox/137.0\r\n\

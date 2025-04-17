@@ -57,7 +57,7 @@ String __ResponseTargetGetContentType(URL & target) {
 void Response::handleRequestGET(const Request * request, Response * response) {
 	if (!request || !response) return;
 	
-	String target = request->target();
+	String target = request->targetPath();
 	URL url(Resource::getRootFolder());
 	url.append(target);
 	
