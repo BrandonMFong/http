@@ -45,7 +45,42 @@ String Request::target() const {
     }
 }
 
+// component: 0=path, 1=query
+String __RequestTargetParse(String & target, int component) {
+	int error = component != 0 && component != 1 ? 1 : 0;
+	String res;
+	char * target_copy = NULL;
+
+	if (!error) {
+		target_copy = BFStringCopyString(target.c_str());
+		if (!target_copy) {
+			res = target;
+			error = 1;
+		}
+	}
+
+	const char * del = "?";
+	char * sub = NULL;
+	while (!error && component-- >= 0) {
+		sub = strtok(target_copy, del);
+		if (!sub) {
+			res = target;
+			error = 1;
+		}
+	}
+
+	if (!error) {
+		res = sub;
+	}
+
+	BFFree(target_copy);
+
+	return res;
+
+}
+
 String Request::targetPath() const {
+	/*
 	String target = this->target();
 	char * target_copy = BFStringCopyString(target.c_str());
 	if (!target_copy) {
@@ -62,27 +97,15 @@ String Request::targetPath() const {
 	BFFree(target_copy);
 
 	return res;
+	*/
+	String target = this->target();
+	return __RequestTargetParse(target, 0);
 }
 
 HashMap<String, String> Request::targetQuery() const {
 	HashMap<String, String> res;
 	String target = this->target();
-	char * target_copy = BFStringCopyString(target.c_str());
-	if (!target_copy) {
-		return res;
-	}
-
-	const char * del = "?";
-	if (strtok(target_copy, del) == NULL) {
-		return res;
-	}
-
-	char * sub = strtok(target_copy, del);
-	if (!sub) {
-		return res;
-	}
-
-	BFFree(target_copy);
+	String queryString = __RequestTargetParse(target, 1);
 
 	return res;
 }

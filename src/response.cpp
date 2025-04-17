@@ -36,7 +36,7 @@ Response * Response::fromRequest(const Request * request) {
 	return res;
 }
 
-String _ResponseTargetGetContentType(URL & target) {
+String __ResponseTargetGetContentType(URL & target) {
 	if (!strcmp(target.extension(), "html")) {
 		return "text/html";
 	} else if (!strcmp(target.extension(), "js")) {
@@ -67,7 +67,7 @@ void Response::handleRequestGET(const Request * request, Response * response) {
 
 	if (BFFileSystemPathIsFile(url.abspath())) {
 		response->_content = Data::fromFile(url);
-		response->_contentType = _ResponseTargetGetContentType(url);
+		response->_contentType = __ResponseTargetGetContentType(url);
 	} else {
 		response->_statusCode = 404;
 		response->_content = new Data("404 Not Found");
