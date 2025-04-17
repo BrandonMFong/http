@@ -1,0 +1,48 @@
+name: CI 
+
+on:
+  push:
+    branches: [ "dev" ]
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+  pull_request:
+    branches: [ "dev" ]
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+
+jobs:
+  unit-tests-linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        token: ${{ secrets.PAT_TOKEN }}
+    - name: Install uuid-dev
+      run: |
+        sudo apt -y update;
+        sudo apt -y upgrade;
+        sudo apt -y install uuid-dev; 
+    - name: building libs
+      run: |
+        cd external;
+        make build-libs;
+    - name: building/running tests
+      run: make build CONFIG=test run
+
+  unit-tests-macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        token: ${{ secrets.PAT_TOKEN }}
+    - name: building libs
+      run: |
+        cd external;
+        make build-libs;
+    - name: building/running tests
+      run: make build CONFIG=test run
+
