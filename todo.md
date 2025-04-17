@@ -1,4 +1,6 @@
 **0.1**
-- [ ] serve html
+- [x] serve html
 	- [x] receive http requests from client (be sure to assemble the packets)
-	- [ ] Handle GET requests for resources
+	- [x] Handle GET requests for resources
+- [ ] prevent requests from targetting anything outside of the root folder
+
