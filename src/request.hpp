@@ -7,6 +7,7 @@
 #define REQUEST_HPP
 
 #include <bflibcpp/object.hpp>
+#include <bflibcpp/hashmap.hpp>
 #include <bflibcpp/data.hpp>
 #include <string>
 
@@ -24,6 +25,12 @@ public:
 	BF::String method() const;
 	BF::String target() const;
 	BF::String protocol() const;
+
+	// returns path without query string
+	BF::String targetPath() const;
+
+	// returns query data
+	BF::HashMap<BF::String, BF::String> targetQuery() const;
 
 	BF::String host() const;
 

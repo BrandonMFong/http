@@ -7,6 +7,10 @@
 #include "log.hpp"
 #include <bflibcpp/bflibcpp.hpp>
 
+extern "C" {
+#include <bflibc/bflibc.h>
+}
+
 #include <regex>
 
 using namespace BF;
@@ -39,6 +43,48 @@ String Request::target() const {
     } else {
         return ""; // Or throw an exception if no target is found
     }
+}
+
+String Request::targetPath() const {
+	String target = this->target();
+	char * target_copy = BFStringCopyString(target.c_str());
+	if (!target_copy) {
+		return target;
+	}
+
+	const char * del = "?";
+	char * sub = strtok(target_copy, del);
+	if (!sub) {
+		return target;
+	}
+
+	String res = sub;
+	BFFree(target_copy);
+
+	return res;
+}
+
+HashMap<String, String> Request::targetQuery() const {
+	HashMap<String, String> res;
+	String target = this->target();
+	char * target_copy = BFStringCopyString(target.c_str());
+	if (!target_copy) {
+		return res;
+	}
+
+	const char * del = "?";
+	if (strtok(target_copy, del) == NULL) {
+		return res;
+	}
+
+	char * sub = strtok(target_copy, del);
+	if (!sub) {
+		return res;
+	}
+
+	BFFree(target_copy);
+
+	return res;
 }
 
 String Request::protocol() const {

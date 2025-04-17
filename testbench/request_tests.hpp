@@ -61,10 +61,26 @@ BFTEST_UNIT_FUNC(test_simpleClientRequest, 2 << 8, {
 	BFRelease(req);
 })
 
+BFTEST_UNIT_FUNC(test_requestTargetPathAndQuery, 1, {
+	String str = "GET /assets/fonts/fontawesome-webfont.ttf?v=4.6.3 HTTP/1.1\r\n\
+	Host: 10.0.0.82:8080\r\n\
+	User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:137.0) Gecko/20100101 Firefox/137.0\r\n\
+	Accept: application/font-woff2;q=1.0,application/font-woff;q=0.9,*/*;q=0.8\r\n\
+	Accept-Language: en-US,en;q=0.5\r\n\
+	Accept-Encoding: gzip, deflate\r\n\
+	Connection: keep-alive\r\n\
+	Referer: http://10.0.0.82:8080/assets/css/font-awesome.min.css\r\n\
+	";
+	Data buf(str);
+
+	Request req(&buf);
+	BF_ASSERT(req.targetPath() == "/assets/fonts/fontawesome-webfont.ttf");
+})
+
 BFTEST_COVERAGE_FUNC(request_tests, {
 	BFTEST_LAUNCH(test_requestInit);
 	BFTEST_LAUNCH(test_simpleClientRequest);
-
+	BFTEST_LAUNCH(test_requestTargetPathAndQuery);
 })
 
 #endif // REQUEST_TESTS_HPP

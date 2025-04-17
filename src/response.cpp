@@ -23,20 +23,16 @@ Response::~Response() {
 }
 
 Response * Response::fromRequest(const Request * request) {
-	LOG_DEBUG("%s:%d", __func__, __LINE__);
 	if (!request) return NULL;
 
-	LOG_DEBUG("%s:%d", __func__, __LINE__);
 	Response * res = new Response;
 	if (!res) return NULL;
 	res->_statusCode = 200;
 
 	if (request->method() == "GET") {
-		LOG_DEBUG("%s:%d", __func__, __LINE__);
 		Response::handleRequestGET(request, res);
 	}
 
-	LOG_DEBUG("%s:%d", __func__, __LINE__);
 	return res;
 }
 
@@ -59,26 +55,20 @@ String _ResponseTargetGetContentType(URL & target) {
 }
 
 void Response::handleRequestGET(const Request * request, Response * response) {
-	LOG_DEBUG("%s:%d", __func__, __LINE__);
 	if (!request || !response) return;
 	
-	LOG_DEBUG("%s:%d", __func__, __LINE__);
 	String target = request->target();
 	URL url(Resource::getRootFolder());
 	url.append(target);
 	
-	LOG_DEBUG("%s:%d", __func__, __LINE__);
 	if (BFFileSystemPathIsDirectory(url.abspath())) {
 		url.append("index.html");
 	}
 
-	LOG_DEBUG("%s:%d", __func__, __LINE__);
 	if (BFFileSystemPathIsFile(url.abspath())) {
-		LOG_DEBUG("%s:%d", __func__, __LINE__);
 		response->_content = Data::fromFile(url);
 		response->_contentType = _ResponseTargetGetContentType(url);
 	} else {
-		LOG_DEBUG("%s:%d", __func__, __LINE__);
 		response->_statusCode = 404;
 		response->_content = new Data("404 Not Found");
 		response->_contentType = "text/plain";
