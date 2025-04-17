@@ -40,6 +40,24 @@ Response * Response::fromRequest(const Request * request) {
 	return res;
 }
 
+String _ResponseTargetGetContentType(URL & target) {
+	if (!strcmp(target.extension(), "html")) {
+		return "text/html";
+	} else if (!strcmp(target.extension(), "js")) {
+		return "text/javascript";
+	} else if (!strcmp(target.extension(), "css")) {
+		return "text/css";
+	} else if (!strcmp(target.extension(), "ico")) {
+		return "image/x-icon";
+	} else if (!strcmp(target.extension(), "jpg") || !strcmp(target.extension(), "jpeg")
+			|| !strcmp(target.extension(), "jfif") || !strcmp(target.extension(), "pjpeg")
+			|| !strcmp(target.extension(), "pjp")) {
+		return "image/jpeg";
+	} else {
+		return "text/plain";
+	}
+}
+
 void Response::handleRequestGET(const Request * request, Response * response) {
 	LOG_DEBUG("%s:%d", __func__, __LINE__);
 	if (!request || !response) return;
@@ -57,9 +75,8 @@ void Response::handleRequestGET(const Request * request, Response * response) {
 	LOG_DEBUG("%s:%d", __func__, __LINE__);
 	if (BFFileSystemPathIsFile(url.abspath())) {
 		LOG_DEBUG("%s:%d", __func__, __LINE__);
-		//response->_content = Resource::copyContentForFile(request->target());
 		response->_content = Data::fromFile(url);
-		response->_contentType = "text/html";
+		response->_contentType = _ResponseTargetGetContentType(url);
 	} else {
 		LOG_DEBUG("%s:%d", __func__, __LINE__);
 		response->_statusCode = 404;

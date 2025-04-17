@@ -11,7 +11,6 @@
 #include <bflibcpp/data.hpp>
 
 namespace Resource {
-	BF::Data * copyContentForFile(const BF::String & target);
 	bool setRootFolder(const BF::String & rootFolder);
 	const BF::String & getRootFolder();
 }

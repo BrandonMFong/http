@@ -33,17 +33,3 @@ bool Resource::setRootFolder(const String & rootFolder) {
 	return true;
 }
 
-Data * Resource::copyContentForFile(const String & file) {
-	URL url(_rootFolder);
-
-	LOG_DEBUG("%s:%d - url-> '%s'", __func__, __LINE__, url.abspath());
-
-
-	if (!BFFileSystemPathExists(url.abspath())) {
-		LOG_DEBUG("%s:%d - url above does not exist", __func__, __LINE__);
-		return NULL;
-	}
-
-	return Data::fromFile(url);
-}
-
