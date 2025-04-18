@@ -25,7 +25,15 @@ using namespace std;
  */
 Atomic<Queue<Envelope *>> _incomingRequests;
 
-const unsigned char numWorkerThreads = 4;
+/**
+ * requests will come in asynchronously from clients, we will queue 
+ * each one and have our worker threads pick off the queue
+ *
+ * we have n worker threads, working concurrently on every available request
+ *
+ * i don't see a performance boost on the client side between 2 and 4 threads
+ */
+const unsigned char numWorkerThreads = 2;
 BFThreadAsyncID _tidRequestQueue[numWorkerThreads];
 
 BFLock _queueSema;

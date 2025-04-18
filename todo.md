@@ -4,5 +4,6 @@
 	- [x] Handle GET requests for resources
 - [x] prevent requests from targetting anything outside of the root folder
 - [x] improve request parsing
-- [ ] multithread request packet handling
+- [x] multithread request packet handling
+- [ ] seg fault issue when you spam the reload page button
 
