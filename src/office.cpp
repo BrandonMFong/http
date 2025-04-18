@@ -38,17 +38,14 @@ void Office::envelopeReceive(Envelope * envelope) {
 
 void __IncomingRequestsWorkerThread(void * in) {
 	while (!BFThreadAsyncIsCanceled(_tidRequestQueue)) {
-		if (_incomingRequests.get().empty()) { 
+		if (_incomingRequests.get<bool>([] (Queue<Envelope *> & q) {
+			return q.empty();
+		})) { 
 			BFLockWait(&_queueSema);
 		} else {
 			_incomingRequests.lock();
-
-			// get first item from the queue
 			Envelope * envelope = _incomingRequests.unsafeget().front();
-
-			// pop off
 			_incomingRequests.unsafeget().pop();
-			
 			_incomingRequests.unlock();
 	
 			if (envelope->data()->size() == 0) {
