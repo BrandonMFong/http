@@ -58,16 +58,22 @@ void Response::handleRequestGET(const Request * request, Response * response) {
 	if (!request || !response) return;
 	
 	String target = request->targetPath();
-	URL url(Resource::getRootFolder());
-	url.append(target);
-	
-	if (BFFileSystemPathIsDirectory(url.abspath())) {
-		url.append("index.html");
-	}
 
-	if (BFFileSystemPathIsFile(url.abspath())) {
-		response->_content = Data::fromFile(url);
-		response->_contentType = __ResponseTargetGetContentType(url);
+	URL targetURL(Resource::getRootFolder());
+	targetURL.append(target);
+	
+	if (BFFileSystemPathIsDirectory(targetURL.abspath())) {
+		targetURL.append("index.html");
+	}
+	
+	if (!Resource::targetValid(targetURL)) {
+		response->_statusCode = 403;
+		response->_content = new Data("HTTP/1.1 403 Forbidden");
+		response->_contentType = "text/plain";
+
+	} else if (BFFileSystemPathIsFile(targetURL.abspath())) {
+		response->_content = Data::fromFile(targetURL);
+		response->_contentType = __ResponseTargetGetContentType(targetURL);
 	} else {
 		response->_statusCode = 404;
 		response->_content = new Data("404 Not Found");

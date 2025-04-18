@@ -70,7 +70,7 @@ FLAGS = $(CPPFLAGS) -DDEBUG -g -Isrc/ $(ADDR_SANITIZER) $(CPPSTD) -Iexternal/bin
 else ifeq ($(CONFIG),test) # test
 MAIN_FILE = testbench/tests.cpp
 BIN_NAME = http-test
-#ADDR_SANITIZER = -fsanitize=address
+ADDR_SANITIZER = -fsanitize=address
 FLAGS = $(CPPFLAGS) -DDEBUG -DTESTING -g -Isrc/ $(ADDR_SANITIZER) $(CPPSTD) -Iexternal/bin/libs/debug 
 LIBRARIES += external/bin/libs/debug/bftest/libbftest-debug.a
 endif # ($(CONFIG),...)

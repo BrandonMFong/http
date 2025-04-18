@@ -18,7 +18,7 @@ extern "C" {
 
 using namespace BF;
 
-BFTEST_UNIT_FUNC(test_requestInit, 1, {
+BFTEST_UNIT_FUNC(test_requestInit, 2 << 10, {
 	Data d;
 	Request * req = new Request(&d);
 	BFRelease(req);
