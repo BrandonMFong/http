@@ -27,12 +27,10 @@ BFThreadAsyncID _tidRequestQueue = NULL;
 BFLock _queueSema;
 
 void Office::envelopeReceive(Envelope * envelope) {
-	_incomingRequests.lock();
-
-	BFRetain(envelope);
-	_incomingRequests.unsafeget().push(envelope);
-
-	_incomingRequests.unlock();
+	_incomingRequests.get([=] (Queue<Envelope *> & q) {
+		BFRetain(envelope);
+		q.push(envelope);
+	});
 	BFLockRelease(&_queueSema);
 }
 
