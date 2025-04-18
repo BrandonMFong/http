@@ -33,11 +33,18 @@ BFTEST_UNIT_FUNC(test_resourceRootFolder, 2 << 10, {
 	URL parentURL(parent);
 	BF_ASSERT(!Resource::targetValid(parentURL.abspath()));
 
-	URL challenge(rootFolder);
+	URL challenge(Resource::getRootFolder());
 	challenge.append("hello");
 	challenge.append("..");
 	challenge.append("..");
 	BF_ASSERT(!Resource::targetValid(challenge.standardURL().abspath()));
+	
+	URL challenge1(Resource::getRootFolder());
+	challenge1.append("hello");
+	challenge1.append("world");
+	challenge1.append("..");
+	challenge1.append("validfile.txt");
+	BF_ASSERT(Resource::targetValid(challenge1.standardURL().abspath()), "path '%s' not in root '%s'", challenge1.standardURL().abspath(), Resource::getRootFolder().c_str());
 })
 
 BFTEST_COVERAGE_FUNC(resource_tests, {
