@@ -11,57 +11,53 @@ extern "C" {
 #include <bflibc/bflibc.h>
 }
 
-//#include <regex>
 #include <sstream>
 
 using namespace BF;
 
 Request::Request(const Data * data) : _message(data == NULL ? 0 : (const char *) data->buffer(), data == NULL ? 0 : data->size()) {
-	LOG_WRITE("Request length = %ld", _message.size());
-	LOG_WRITE("Request content = \n%s", _message.c_str());
-	
-	this->_method[0] = '\0';
-	this->_target[0] = '\0';
-	this->_protocol[0] = '\0';
+	LOG_DEBUG("Request length = %ld", _message.size());
+	LOG_DEBUG("Request content = \n%s", _message.c_str());
 
 	this->parse();
 }
 
 Request::~Request() { }
 
-void __RequestParseStatusLine(std::string & in, char * method, char * target, char * protocol) {
-	if (!method || !target) return;
-
-	if (in.back() == '\r') {
-		in.pop_back();
-	}
-
+void __RequestParseStatusLine(std::string & in, String & method, String & target, String & protocol) {
 	std::stringstream ss(in);
 	std::string buf;
 	char del = ' ';
 
 	if (getline(ss, buf, del)) {
-		strcpy(method, buf.c_str());
+		method = buf;
 	}
 
 	if (getline(ss, buf, del)) {
-		strcpy(target, buf.c_str());
+		target = buf;
 	}
 
 	if (getline(ss, buf, del)) {
-		strcpy(protocol, buf.c_str());
+		protocol = buf;
 	}
 }
 
 void __RequestParseHeader(std::string & in, HashMap<String, String> & header) {
-	std::stringstream ss(in);
-	std::string key;
-	std::string value;
-	char del = ':';
+	std::string del = ": ";
+	auto pos = in.find(del);
+	std::string key, value;
 
-	if (getline(ss, key, del) && getline(ss, value, del)) {
-		header.insert(key, value);
+	if (pos == std::string::npos) {
+		return;
 	}
+	
+	key = in.substr(0, pos);
+	in.erase(0, pos + del.length());
+	pos = in.find(del);
+	
+	value = in.substr(0, pos);
+
+	header.insert(key, value);
 }
 
 void Request::parse() {
@@ -75,6 +71,17 @@ void Request::parse() {
 	int statusLineParsed = false;
 	int headerParsed = false;
 	while (getline(ss, buf, del)) {
+		buf.erase(
+			std::remove_if(
+				buf.begin(),
+				buf.end(),
+				[](unsigned char c) {
+					return c == '\t' || c == '\n' || c == '\r'; 
+				}
+			),
+			buf.end()
+		);
+
 		if (!statusLineParsed) {
 			__RequestParseStatusLine(buf, this->_method, this->_target, this->_protocol);
 			statusLineParsed = true;
@@ -90,46 +97,24 @@ void Request::parse() {
 	}
 }
 
-String Request::method() const {
-	/*
-	std::regex methodRegex(R"((GET|POST|PUT|DELETE|HEAD|OPTIONS|CONNECT|TRACE|PATCH)\s+)");
-	std::smatch match;
-
-    if (std::regex_search(this->_message, match, methodRegex)) {
-        return match[1].str(); // The second capturing group contains the target
-    } else {
-        return ""; // Or throw an exception if no target is found
-    }
-	*/
+const String & Request::method() const {
 	return this->_method;
 }
 
-String Request::target() const {
-	/*
-	std::regex targetRegex(R"((?:GET|POST|PUT|DELETE|HEAD|OPTIONS|CONNECT|TRACE|PATCH)\s+([^\s]+)\s+HTTP/\d\.\d)");
-    std::smatch match;
-
-    if (std::regex_search(this->_message, match, targetRegex)) {
-        return match[1].str(); // The second capturing group contains the target
-    } else {
-        return ""; // Or throw an exception if no target is found
-    }
-	*/
+const String & Request::target() const {
 	return this->_target;
 }
 
-String Request::protocol() const {
-	/*
-    std::regex protocolRegex(R"((?:GET|POST|PUT|DELETE|HEAD|OPTIONS|CONNECT|TRACE|PATCH)\s+[^\s]+\s+(HTTP/\d\.\d))");
-    std::smatch match;
-
-    if (std::regex_search(this->_message, match, protocolRegex)) {
-        return match[1].str(); // The second capturing group contains the protocol
-    } else {
-        return ""; // Or throw an exception if no protocol is found
-    }
-	*/
+const String & Request::protocol() const {
 	return this->_protocol;
+}
+
+const HashMap<String, String> & Request::header() const {
+	return this->_header;
+}
+
+const String & Request::body() const {
+	return this->_body;
 }
 
 // component: 0=path, 1=query
@@ -206,9 +191,5 @@ HashMap<String, String> Request::targetQuery() const {
 	BFFree(query_copy);
 
 	return res;
-}
-
-String Request::host() const {
-	return "";
 }
 

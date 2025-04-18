@@ -27,9 +27,12 @@ public:
 	Request(const BF::Data * data);
 	virtual ~Request();
 
-	BF::String method() const;
-	BF::String target() const;
-	BF::String protocol() const;
+	const BF::String & method() const;
+	const BF::String & target() const;
+	const BF::String & protocol() const;
+
+	const BF::HashMap<BF::String, BF::String> & header() const;
+	const BF::String & body() const;
 
 	// returns path without query string
 	BF::String targetPath() const;
@@ -37,17 +40,15 @@ public:
 	// returns query data
 	BF::HashMap<BF::String, BF::String> targetQuery() const;
 
-	BF::String host() const;
-
 private:
 	void parse();
 
 	std::string _message;
 
 	// status line
-	char _method[32];
-	char _target[PATH_MAX];
-	char _protocol[32];
+	BF::String _method;
+	BF::String _target;
+	BF::String _protocol;
 
 	BF::HashMap<BF::String, BF::String> _header;
 
