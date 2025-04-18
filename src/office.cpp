@@ -25,17 +25,17 @@ using namespace std;
  */
 Atomic<Queue<Envelope *>> _incomingRequests;
 
-const unsigned char numWorkerThreads = 2;
+const unsigned char numWorkerThreads = 4;
 BFThreadAsyncID _tidRequestQueue[numWorkerThreads];
 
-//BFLock _queueSema;
+BFLock _queueSema;
 
 void Office::envelopeReceive(Envelope * envelope) {
 	_incomingRequests.get([=] (Queue<Envelope *> & q) {
 		BFRetain(envelope);
 		q.push(envelope);
 	});
-	//BFLockRelease(&_queueSema);
+	BFLockRelease(&_queueSema);
 }
 
 void __IncomingRequestsWorkerThread(void * in) {
@@ -44,7 +44,8 @@ void __IncomingRequestsWorkerThread(void * in) {
 		_incomingRequests.lock();
 		if (_incomingRequests.unsafeget().empty()) {
 			_incomingRequests.unlock();
-			usleep(50);
+			//usleep(50);
+			BFLockWait(&_queueSema);
 		} else {
 			Envelope * envelope = _incomingRequests.unsafeget().front();
 			_incomingRequests.unsafeget().pop();
@@ -72,7 +73,7 @@ void __IncomingRequestsWorkerThread(void * in) {
 }
 
 void Office::start() {
-	//BFLockCreate(&_queueSema);
+	BFLockCreate(&_queueSema);
 
 	for (int i = 0; i < numWorkerThreads; i++) {
 		_tidRequestQueue[i] = BFThreadAsync(__IncomingRequestsWorkerThread, NULL);
@@ -82,11 +83,16 @@ void Office::start() {
 void Office::stop() {
 	//BFLockRelease(&_queueSema);
 	for (int i = 0; i < numWorkerThreads; i++) {
+		BFLockRelease(&_queueSema);
 		BFThreadAsyncCancel(_tidRequestQueue[i]);
+	}
+	
+	for (int i = 0; i < numWorkerThreads; i++) {
+		BFLockRelease(&_queueSema);
 		BFThreadAsyncWait(_tidRequestQueue[i]);
 		BFThreadAsyncDestroy(_tidRequestQueue[i]);
 	}
 
-	//BFLockDestroy(&_queueSema);
+	BFLockDestroy(&_queueSema);
 }
 
