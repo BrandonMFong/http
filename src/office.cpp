@@ -11,6 +11,7 @@
 #include <bflibcpp/bflibcpp.hpp>
 #include <bfnet/bfnet.hpp>
 #include <iostream>
+#include <unistd.h>
 
 using namespace BF::Net;
 using namespace BF;
@@ -23,25 +24,28 @@ using namespace std;
  * once popped from queue
  */
 Atomic<Queue<Envelope *>> _incomingRequests;
-BFThreadAsyncID _tidRequestQueue = NULL;
-BFLock _queueSema;
+
+const unsigned char numWorkerThreads = 2;
+BFThreadAsyncID _tidRequestQueue[numWorkerThreads];
+
+//BFLock _queueSema;
 
 void Office::envelopeReceive(Envelope * envelope) {
 	_incomingRequests.get([=] (Queue<Envelope *> & q) {
 		BFRetain(envelope);
 		q.push(envelope);
 	});
-	BFLockRelease(&_queueSema);
+	//BFLockRelease(&_queueSema);
 }
 
 void __IncomingRequestsWorkerThread(void * in) {
-	while (!BFThreadAsyncIsCanceled(_tidRequestQueue)) {
-		if (_incomingRequests.get<bool>([] (Queue<Envelope *> & q) {
-			return q.empty();
-		})) { 
-			BFLockWait(&_queueSema);
+	const BFThreadAsyncID tid = BFThreadAsyncGetID();
+	while (!BFThreadAsyncIsCanceled(tid)) {
+		_incomingRequests.lock();
+		if (_incomingRequests.unsafeget().empty()) {
+			_incomingRequests.unlock();
+			usleep(50);
 		} else {
-			_incomingRequests.lock();
 			Envelope * envelope = _incomingRequests.unsafeget().front();
 			_incomingRequests.unsafeget().pop();
 			_incomingRequests.unlock();
@@ -68,16 +72,21 @@ void __IncomingRequestsWorkerThread(void * in) {
 }
 
 void Office::start() {
-	BFLockCreate(&_queueSema);
-	_tidRequestQueue = BFThreadAsync(__IncomingRequestsWorkerThread, NULL);
+	//BFLockCreate(&_queueSema);
+
+	for (int i = 0; i < numWorkerThreads; i++) {
+		_tidRequestQueue[i] = BFThreadAsync(__IncomingRequestsWorkerThread, NULL);
+	}
 }
 
 void Office::stop() {
-	BFThreadAsyncCancel(_tidRequestQueue);
-	BFLockRelease(&_queueSema);
-	BFThreadAsyncWait(_tidRequestQueue);
-	BFThreadAsyncDestroy(_tidRequestQueue);
+	//BFLockRelease(&_queueSema);
+	for (int i = 0; i < numWorkerThreads; i++) {
+		BFThreadAsyncCancel(_tidRequestQueue[i]);
+		BFThreadAsyncWait(_tidRequestQueue[i]);
+		BFThreadAsyncDestroy(_tidRequestQueue[i]);
+	}
 
-	BFLockDestroy(&_queueSema);
+	//BFLockDestroy(&_queueSema);
 }
 
