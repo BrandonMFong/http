@@ -11,6 +11,11 @@
 #include <bflibcpp/data.hpp>
 #include <string>
 
+#ifdef LINUX
+#include <linux/limits.h>
+#endif
+#include <limits.h>
+
 typedef enum {
 	kRequestMethodNone = 0,
 	kRequestMethodGet,
@@ -35,7 +40,18 @@ public:
 	BF::String host() const;
 
 private:
+	void parse();
+
 	std::string _message;
+
+	// status line
+	char _method[32];
+	char _target[PATH_MAX];
+	char _protocol[32];
+
+	BF::HashMap<BF::String, BF::String> _header;
+
+	BF::String _body;
 };
 
 #endif // REQUEST_HPP

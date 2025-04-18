@@ -11,19 +11,87 @@ extern "C" {
 #include <bflibc/bflibc.h>
 }
 
-#include <regex>
+//#include <regex>
+#include <sstream>
 
 using namespace BF;
 
 Request::Request(const Data * data) : _message(data == NULL ? 0 : (const char *) data->buffer(), data == NULL ? 0 : data->size()) {
 	LOG_WRITE("Request length = %ld", _message.size());
 	LOG_WRITE("Request content = \n%s", _message.c_str());
+	
+	this->_method[0] = '\0';
+	this->_target[0] = '\0';
+	this->_protocol[0] = '\0';
+
+	this->parse();
 }
 
-Request::~Request() {
+Request::~Request() { }
+
+void __RequestParseStatusLine(std::string & in, char * method, char * target, char * protocol) {
+	if (!method || !target) return;
+
+	if (in.back() == '\r') {
+		in.pop_back();
+	}
+
+	std::stringstream ss(in);
+	std::string buf;
+	char del = ' ';
+
+	if (getline(ss, buf, del)) {
+		strcpy(method, buf.c_str());
+	}
+
+	if (getline(ss, buf, del)) {
+		strcpy(target, buf.c_str());
+	}
+
+	if (getline(ss, buf, del)) {
+		strcpy(protocol, buf.c_str());
+	}
+}
+
+void __RequestParseHeader(std::string & in, HashMap<String, String> & header) {
+	std::stringstream ss(in);
+	std::string key;
+	std::string value;
+	char del = ':';
+
+	if (getline(ss, key, del) && getline(ss, value, del)) {
+		header.insert(key, value);
+	}
+}
+
+void Request::parse() {
+	if (this->_message.empty()) {
+		return;
+	}
+
+	std::stringstream ss(this->_message);
+	std::string buf;
+	char del = '\n';
+	int statusLineParsed = false;
+	int headerParsed = false;
+	while (getline(ss, buf, del)) {
+		if (!statusLineParsed) {
+			__RequestParseStatusLine(buf, this->_method, this->_target, this->_protocol);
+			statusLineParsed = true;
+		} else if (!headerParsed) {
+			if (buf.empty()) {
+				headerParsed = true;
+			} else {
+				__RequestParseHeader(buf, this->_header);
+			}
+		} else { // read the body
+			this->_body.append(buf);
+		}
+	}
 }
 
 String Request::method() const {
+	/*
 	std::regex methodRegex(R"((GET|POST|PUT|DELETE|HEAD|OPTIONS|CONNECT|TRACE|PATCH)\s+)");
 	std::smatch match;
 
@@ -32,9 +100,12 @@ String Request::method() const {
     } else {
         return ""; // Or throw an exception if no target is found
     }
+	*/
+	return this->_method;
 }
 
 String Request::target() const {
+	/*
 	std::regex targetRegex(R"((?:GET|POST|PUT|DELETE|HEAD|OPTIONS|CONNECT|TRACE|PATCH)\s+([^\s]+)\s+HTTP/\d\.\d)");
     std::smatch match;
 
@@ -43,6 +114,22 @@ String Request::target() const {
     } else {
         return ""; // Or throw an exception if no target is found
     }
+	*/
+	return this->_target;
+}
+
+String Request::protocol() const {
+	/*
+    std::regex protocolRegex(R"((?:GET|POST|PUT|DELETE|HEAD|OPTIONS|CONNECT|TRACE|PATCH)\s+[^\s]+\s+(HTTP/\d\.\d))");
+    std::smatch match;
+
+    if (std::regex_search(this->_message, match, protocolRegex)) {
+        return match[1].str(); // The second capturing group contains the protocol
+    } else {
+        return ""; // Or throw an exception if no protocol is found
+    }
+	*/
+	return this->_protocol;
 }
 
 // component: 0=path, 1=query
@@ -119,17 +206,6 @@ HashMap<String, String> Request::targetQuery() const {
 	BFFree(query_copy);
 
 	return res;
-}
-
-String Request::protocol() const {
-    std::regex protocolRegex(R"((?:GET|POST|PUT|DELETE|HEAD|OPTIONS|CONNECT|TRACE|PATCH)\s+[^\s]+\s+(HTTP/\d\.\d))");
-    std::smatch match;
-
-    if (std::regex_search(this->_message, match, protocolRegex)) {
-        return match[1].str(); // The second capturing group contains the protocol
-    } else {
-        return ""; // Or throw an exception if no protocol is found
-    }
 }
 
 String Request::host() const {

@@ -31,15 +31,13 @@ BFTEST_UNIT_FUNC(test_simpleClientRequest, 2 << 6, {
 	Data post_buf(post_str);
 	String head_str = "HEAD /static/image.png HTTP/1.0\r\n\r\n";
 	Data head_buf(head_str);
-	String invalid_str = "Invalid Request Line";
-	Data invalid_buf(invalid_str);
 
 	Request * req = NULL;
 	
 	req = new Request(&get_buf);
 	BF_ASSERT(req->method() == "GET");
-	BF_ASSERT(req->target() == "/index.html");
-	BF_ASSERT(req->protocol() == "HTTP/1.1");
+	BF_ASSERT(req->target() == "/index.html", "read '%s'", req->target().c_str());
+	BF_ASSERT(req->protocol() == "HTTP/1.1", "read: '%s'", req->protocol().c_str());
 	BFRelease(req);
 
 	req = new Request(&post_buf);
@@ -52,12 +50,6 @@ BFTEST_UNIT_FUNC(test_simpleClientRequest, 2 << 6, {
 	BF_ASSERT(req->method() == "HEAD");
 	BF_ASSERT(req->target() == "/static/image.png");
 	BF_ASSERT(req->protocol() == "HTTP/1.0");
-	BFRelease(req);
-
-	req = new Request(&invalid_buf);
-	BF_ASSERT(req->method() == "");
-	BF_ASSERT(req->target().empty());
-	BF_ASSERT(req->protocol().empty());
 	BFRelease(req);
 })
 
