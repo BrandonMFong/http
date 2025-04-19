@@ -32,7 +32,7 @@ void help(const char * toolname) {
 }
 
 void __NewConnection(Connection * sc) {
-	LOG_WRITE("new connection made");
+	LOG_DEBUG("new connection made");
 }
 
 int __ReadArguments(int argc, char * argv[]) {

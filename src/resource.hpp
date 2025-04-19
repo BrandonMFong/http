@@ -9,10 +9,12 @@
 #define RESOURCE_HPP
 
 #include <bflibcpp/data.hpp>
+#include <bflibcpp/url.hpp>
 
 namespace Resource {
 	bool setRootFolder(const BF::String & rootFolder);
 	const BF::String & getRootFolder();
+	bool targetValid(const BF::URL & target);
 }
 
 #endif // RESOURCE_HPP

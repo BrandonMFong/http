@@ -33,3 +33,8 @@ bool Resource::setRootFolder(const String & rootFolder) {
 	return true;
 }
 
+bool Resource::targetValid(const URL & target) {
+	URL rootURL = _rootFolder;
+	return target.absURL().isSubPath(rootURL.absURL());
+}
+

@@ -11,6 +11,11 @@
 #include <bflibcpp/data.hpp>
 #include <string>
 
+#ifdef LINUX
+#include <linux/limits.h>
+#endif
+#include <limits.h>
+
 typedef enum {
 	kRequestMethodNone = 0,
 	kRequestMethodGet,
@@ -22,9 +27,12 @@ public:
 	Request(const BF::Data * data);
 	virtual ~Request();
 
-	BF::String method() const;
-	BF::String target() const;
-	BF::String protocol() const;
+	const BF::String & method() const;
+	const BF::String & target() const;
+	const BF::String & protocol() const;
+
+	const BF::HashMap<BF::String, BF::String> & header() const;
+	const BF::String & body() const;
 
 	// returns path without query string
 	BF::String targetPath() const;
@@ -32,10 +40,19 @@ public:
 	// returns query data
 	BF::HashMap<BF::String, BF::String> targetQuery() const;
 
-	BF::String host() const;
-
 private:
+	void parse();
+
 	std::string _message;
+
+	// status line
+	BF::String _method;
+	BF::String _target;
+	BF::String _protocol;
+
+	BF::HashMap<BF::String, BF::String> _header;
+
+	BF::String _body;
 };
 
 #endif // REQUEST_HPP

@@ -44,6 +44,7 @@ void _LogWriteEntry(BFFileWriter * filewriter, int mode, ...) {
 		logstr
 	);
 
+#ifdef ENABLE_LOG_CONSOLE_PRINT
 	printf(
 		format,
 		dt.month,
@@ -56,6 +57,7 @@ void _LogWriteEntry(BFFileWriter * filewriter, int mode, ...) {
 	);
 	printf("\n");
 	fflush(stdout);
+#endif // ENABLE_LOG_CONSOLE_PRINT
 
 	va_end(arg0);
 	va_end(arg1);
