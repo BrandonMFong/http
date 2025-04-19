@@ -5,5 +5,5 @@
 - [x] prevent requests from targetting anything outside of the root folder
 - [x] improve request parsing
 - [x] multithread request packet handling
-- [ ] seg fault issue when you spam the reload page button
+- [x] seg fault issue when you spam the reload page button
 
