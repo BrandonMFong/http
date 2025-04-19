@@ -10,6 +10,8 @@ extern "C" {
 #include <bflibc/filewriter.h>
 }
 
+//#define ENABLE_LOG_CONSOLE_PRINT
+
 #define CHAT_LOG_PATH "/tmp/http.log"
 
 extern BFFileWriter gFileWriter;
