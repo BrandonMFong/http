@@ -39,7 +39,6 @@ BFThreadAsyncID _tidRequestQueue[numWorkerThreads];
 BFLock _queueSema;
 
 void Office::envelopeReceive(Envelope * envelope) {
-	int attempts = 0;
 	int threshold = 25;
 	while (_incomingRequests.get<int>([=] (auto & q) {
 		return q.size();
