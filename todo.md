@@ -6,4 +6,6 @@
 - [x] improve request parsing
 - [x] multithread request packet handling
 - [x] seg fault issue when you spam the reload page button
+- [ ] configure port in cli
+- [ ] launch in background
 
