@@ -77,7 +77,10 @@ int main(int argc, char * argv[]) {
 	Log::SetCallback(__LogCallbackBFNet);
 
 	Office::start();
-	Socket * skt = Socket::create(SOCKET_MODE_SERVER, "0.0.0.0", _port, &error);
+
+	const char * ipaddr = "0.0.0.0";
+	LOG_WRITE("creating socket at %s:%u", ipaddr, _port);
+	Socket * skt = Socket::create(SOCKET_MODE_SERVER, ipaddr, _port, &error);
 	if (!error) {
 		skt->setInStreamCallback(Office::envelopeReceive);
 		skt->setNewConnectionCallback(__NewConnection);
