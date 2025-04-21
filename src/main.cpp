@@ -10,18 +10,22 @@
 #include <bflibcpp/bflibcpp.hpp>
 #include <bfnet/bfnet.hpp>
 #include <iostream>
+#include <signal.h>
 
 extern "C" {
 #include <bflibc/bflibc.h>
 }
 
 #define ARGUMENT_ROOT "-root"
+#define ARGUMENT_PORT "-port"
 
 using namespace BF::Net;
 using namespace BF;
 using namespace std;
 
 LOG_INIT;
+
+Atomic<bool> _running;
 
 void help(const char * toolname) {
 	printf("usage: %s %s <path>\n", toolname, ARGUMENT_ROOT);
@@ -52,6 +56,10 @@ int __ReadArguments(int argc, char * argv[]) {
 	return 0;
 }
 
+void __HandleSignal(int signum) {
+	_running = false;
+}
+
 int main(int argc, char * argv[]) {
 	LOG_OPEN;
 
@@ -70,15 +78,15 @@ int main(int argc, char * argv[]) {
 		skt->setBufferSize(1024 * 1024 * 100);
 		error = skt->start();
 	}
+
+	signal(SIGINT, __HandleSignal);  // For Ctrl+C
+    signal(SIGTERM, __HandleSignal); // For 'kill' command
+    signal(SIGHUP, __HandleSignal);  // For terminal hangup
+
+	_running = error == 0;	
+	while (!error && _running.get()) { }
 	
-	if (!error) {
-		cout << "Press any key to stop...";
-		cin.get();
-		error = skt->stop();
-
-		cout << "Stopped..." << endl;
-	}
-
+	skt->stop();
 	BFRelease(skt);
 	Office::stop();
 
