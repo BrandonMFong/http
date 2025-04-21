@@ -11,6 +11,7 @@
 #include <bfnet/bfnet.hpp>
 #include <iostream>
 #include <signal.h>
+#include <stdlib.h>
 
 extern "C" {
 #include <bflibc/bflibc.h>
@@ -26,6 +27,7 @@ using namespace std;
 LOG_INIT;
 
 Atomic<bool> _running;
+uint16_t _port = 8080;
 
 void help(const char * toolname) {
 	printf("usage: %s %s <path>\n", toolname, ARGUMENT_ROOT);
@@ -47,8 +49,12 @@ int __ReadArguments(int argc, char * argv[]) {
 
 	for (int i = 0; i < argc; i++) {
 		if (!strcmp(argv[i], ARGUMENT_ROOT)) {
-			if (!Resource::setRootFolder(argv[++i])) {
+			if (++i < argc && !Resource::setRootFolder(argv[i])) {
 				LOG_ERROR("'%s' is not accepted as a root folder", argv[i]);
+			}
+		} else if (!strcmp(argv[i], ARGUMENT_PORT)) {
+			if (++i < argc) {
+				_port = atoi(argv[i]);
 			}
 		}
 	}
@@ -71,7 +77,7 @@ int main(int argc, char * argv[]) {
 	Log::SetCallback(__LogCallbackBFNet);
 
 	Office::start();
-	Socket * skt = Socket::create(SOCKET_MODE_SERVER, "0.0.0.0", 8080, &error);
+	Socket * skt = Socket::create(SOCKET_MODE_SERVER, "0.0.0.0", _port, &error);
 	if (!error) {
 		skt->setInStreamCallback(Office::envelopeReceive);
 		skt->setNewConnectionCallback(__NewConnection);
