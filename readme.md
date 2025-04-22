@@ -1,3 +1,4 @@
+[![CI](https://github.com/BrandonMFong/http/actions/workflows/test.yml/badge.svg)](https://github.com/BrandonMFong/http/actions/workflows/test.yml)
 # http
 An http server using POSIX sockets
 ![Demo](./docs/demo.gif)
