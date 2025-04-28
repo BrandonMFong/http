@@ -30,10 +30,11 @@ Atomic<bool> _running;
 uint16_t _port = 8080;
 
 void help(const char * toolname) {
-	printf("usage: %s %s <path>\n", toolname, ARGUMENT_ROOT);
+	printf("usage: %s <args>\n", toolname);
 	printf("\n");
 	printf("Arguments:\n");
 	printf("  %s <path>\tThis is the root folder where we will look for resources\n", ARGUMENT_ROOT);
+	printf("  %s <num>\tSpecifies listening port, default is %d\n", ARGUMENT_PORT, _port);
 	printf("\nCopyright © 2025 Brando. All rights reserved.\n");
 }
 
