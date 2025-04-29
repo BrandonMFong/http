@@ -12,6 +12,7 @@
 #include <iostream>
 #include <signal.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 extern "C" {
 #include <bflibc/bflibc.h>
@@ -94,7 +95,9 @@ int main(int argc, char * argv[]) {
     signal(SIGHUP, __HandleSignal);  // For terminal hangup
 
 	_running = error == 0;	
-	while (!error && _running.get()) { }
+	while (!error && _running.get()) {
+		usleep(50);
+	}
 	
 	skt->stop();
 	BFRelease(skt);
