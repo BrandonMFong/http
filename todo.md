@@ -8,4 +8,5 @@
 - [x] seg fault issue when you spam the reload page button
 - [x] configure port in cli
 - [ ] launch in background
+- [ ] fix blocking issues that are preventing software to exit
 
