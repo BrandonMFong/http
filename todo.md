@@ -1,5 +1,5 @@
 **x.x**
-- [ ] VIRT memory is 20.0T, reduce if possible
+- [ ] VIRT memory is 20.0T, reduce if possible (too many dynamic allocations, work must be done in libs)
 
 **0.1**
 - [x] serve html
