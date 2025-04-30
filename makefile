@@ -57,14 +57,14 @@ LINKS = -lpthread $(BF_LIB_C_FLAGS) -ldl
 ifeq ($(CONFIG),release) # release
 MAIN_FILE = src/main.cpp
 BIN_NAME = http
-FLAGS = $(CPPFLAGS) -Isrc/ $(CPPSTD) -Iexternal/bin/libs/release 
+FLAGS = $(CPPFLAGS) -Isrc/ $(CPPSTD) -Iexternal/bin/libs/release
 
 ### Debug settings
 else ifeq ($(CONFIG),debug) # debug
 MAIN_FILE = src/main.cpp
 BIN_NAME = http-debug
 ADDR_SANITIZER = -fsanitize=address
-FLAGS = $(CPPFLAGS) -DDEBUG -g -Isrc/ $(ADDR_SANITIZER) $(CPPSTD) -Iexternal/bin/libs/debug 
+FLAGS = $(CPPFLAGS) -DDEBUG -g -Isrc/ $(ADDR_SANITIZER) $(CPPSTD) -Iexternal/bin/libs/debug
 
 ### Test settings
 else ifeq ($(CONFIG),test) # test
