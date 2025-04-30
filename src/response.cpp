@@ -49,6 +49,8 @@ String __ResponseTargetGetContentType(URL & target) {
 			|| !strcmp(target.extension(), "jfif") || !strcmp(target.extension(), "pjpeg")
 			|| !strcmp(target.extension(), "pjp")) {
 		return "image/jpeg";
+	} else if (!strcmp(target.extension(), "pdf")) {
+		return "application/pdf";
 	} else {
 		return "text/plain";
 	}
