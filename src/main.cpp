@@ -1,6 +1,5 @@
 /**
- * author: brando
- * date: 2/26/25
+ * author: brando * date: 2/26/25
  */
 
 #include "office.hpp"
@@ -12,6 +11,7 @@
 #include <iostream>
 #include <signal.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 extern "C" {
 #include <bflibc/bflibc.h>
@@ -26,8 +26,8 @@ using namespace std;
 
 LOG_INIT;
 
-Atomic<bool> _running;
 uint16_t _port = 8080;
+BFLock _appRunSema;
 
 void help(const char * toolname) {
 	printf("usage: %s <args>\n", toolname);
@@ -64,11 +64,22 @@ int __ReadArguments(int argc, char * argv[]) {
 }
 
 void __HandleSignal(int signum) {
-	_running = false;
+	BFLockRelease(&_appRunSema);
 }
 
 int main(int argc, char * argv[]) {
 	LOG_OPEN;
+	BFDefer([&](){
+		LOG_CLOSE;
+	});
+
+	if (BFLockCreate(&_appRunSema)) {
+		LOG_ERROR("couldn't create semaphore");
+		return -1;
+	}
+	BFDefer([&](){
+		BFLockDestroy(&_appRunSema);
+	});
 
 	if (__ReadArguments(argc, argv)) {
 		return -1;
@@ -78,30 +89,38 @@ int main(int argc, char * argv[]) {
 	Log::SetCallback(__LogCallbackBFNet);
 
 	Office::start();
+	BFDefer([](){
+		Office::stop();
+	});
 
 	const char * ipaddr = "0.0.0.0";
 	LOG_WRITE("creating socket at %s:%u", ipaddr, _port);
 	Socket * skt = Socket::create(SOCKET_MODE_SERVER, ipaddr, _port, &error);
-	if (!error) {
-		skt->setInStreamCallback(Office::envelopeReceive);
-		skt->setNewConnectionCallback(__NewConnection);
-		skt->setBufferSize(1024 * 1024 * 100);
-		error = skt->start();
+	BFDefer([&](){
+		BFRelease(skt);
+	});
+	if (error) {
+		LOG_ERROR("couldn't create socket, error=%d", error);
+		return error;
 	}
+	
+	skt->setInStreamCallback(Office::envelopeReceive);
+	skt->setNewConnectionCallback(__NewConnection);
+	skt->setBufferSize(1024 * 1024 * 100);
+	if (skt->start()) {
+		LOG_ERROR("couldn't start listening on socket");
+		return -1;
+	}
+	BFDefer([&](){
+		skt->stop();
+	});
 
 	signal(SIGINT, __HandleSignal);  // For Ctrl+C
     signal(SIGTERM, __HandleSignal); // For 'kill' command
     signal(SIGHUP, __HandleSignal);  // For terminal hangup
-
-	_running = error == 0;	
-	while (!error && _running.get()) { }
 	
-	skt->stop();
-	BFRelease(skt);
-	Office::stop();
+	BFLockWait(&_appRunSema);
 
-	LOG_CLOSE;
-
-	return error;
+	return 0;
 }
 

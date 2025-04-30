@@ -1,3 +1,5 @@
+**x.x**
+
 **0.1**
 - [x] serve html
 	- [x] receive http requests from client (be sure to assemble the packets)
@@ -7,6 +9,6 @@
 - [x] multithread request packet handling
 - [x] seg fault issue when you spam the reload page button
 - [x] configure port in cli
-- [ ] launch in background
-- [ ] fix blocking issues that are preventing software to exit
+- [x] launch in background
+- [x] fix blocking issues that are preventing software to exit
 

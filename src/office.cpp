@@ -80,6 +80,8 @@ void __IncomingRequestsWorkerThread(void * in) {
 				BFRelease(respData);
 			}
 
+			envelope->connection()->closeConnection();
+
 			BFRelease(resp);
 			BFRelease(req);
 			BFRelease(envelope);
