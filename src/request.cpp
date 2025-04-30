@@ -15,9 +15,10 @@ extern "C" {
 
 using namespace BF;
 
-Request::Request(const Data * data) : _message(data == NULL ? 0 : (const char *) data->buffer(), data == NULL ? 0 : data->size()) {
+Request::Request(const Data * data) : 
+	_message(data == NULL ? 0 : (const char *) data->buffer(), data == NULL ? 0 : data->size()) {
 	LOG_DEBUG("Request length = %ld", _message.size());
-	LOG_DEBUG("Request content = \n%s", _message.c_str());
+	LOG_WRITE("Request content = \n%s", _message.c_str());
 
 	this->parse();
 }
