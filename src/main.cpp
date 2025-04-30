@@ -19,6 +19,9 @@ extern "C" {
 
 #define ARGUMENT_ROOT "-root"
 #define ARGUMENT_PORT "-port"
+#define ARGUMENT_VERSION "--version"
+
+#define VERSION_STRING "0.1"
 
 using namespace BF::Net;
 using namespace BF;
@@ -28,6 +31,7 @@ LOG_INIT;
 
 uint16_t _port = 8080;
 BFLock _appRunSema;
+bool _showVersion = false;
 
 void help(const char * toolname) {
 	printf("usage: %s <args>\n", toolname);
@@ -35,11 +39,16 @@ void help(const char * toolname) {
 	printf("Arguments:\n");
 	printf("  %s <path>\tThis is the root folder where we will look for resources\n", ARGUMENT_ROOT);
 	printf("  %s <num>\tSpecifies listening port, default is %d\n", ARGUMENT_PORT, _port);
+	printf("  %s \tShows version\n", ARGUMENT_VERSION);
 	printf("\nCopyright © 2025 Brando. All rights reserved.\n");
 }
 
 void __NewConnection(Connection * sc) {
 	LOG_DEBUG("new connection made");
+}
+
+void __ShowVersion() {
+	printf("%s\n", VERSION_STRING);
 }
 
 int __ReadArguments(int argc, char * argv[]) {
@@ -48,7 +57,7 @@ int __ReadArguments(int argc, char * argv[]) {
 		return -1;
 	}
 
-	for (int i = 0; i < argc; i++) {
+	for (int i = 1; i < argc; i++) {
 		if (!strcmp(argv[i], ARGUMENT_ROOT)) {
 			if (++i < argc && !Resource::setRootFolder(argv[i])) {
 				LOG_ERROR("'%s' is not accepted as a root folder", argv[i]);
@@ -57,6 +66,8 @@ int __ReadArguments(int argc, char * argv[]) {
 			if (++i < argc) {
 				_port = atoi(argv[i]);
 			}
+		} else if (!strcmp(argv[i], ARGUMENT_VERSION)) {
+			_showVersion = true;
 		}
 	}
 
@@ -83,6 +94,11 @@ int main(int argc, char * argv[]) {
 
 	if (__ReadArguments(argc, argv)) {
 		return -1;
+	}
+
+	if (_showVersion) {
+		__ShowVersion();
+		return 0;
 	}
 
 	int error = 0;
