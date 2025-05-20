@@ -1,5 +1,6 @@
 **x.x**
 - [ ] client calls, download files, fetch web pages, interact with RESTful apis
+- [ ] segmentation fault is returned when this request comes through `GET /favicon.ico HTTP/2.0`
 
 **0.1**
 - [x] serve html
